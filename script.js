@@ -23,17 +23,30 @@ envelope.addEventListener("click", () => {
 // Logic to move the NO btn
 
 noBtn.addEventListener("click", () => {
-    const min = 50;
-    const max = 300;
+    // Get the container
+    const container = document.querySelector(".letter-window");
 
-    const distance = Math.random() * (max - min) + min;
-    const angle = Math.random() * Math.PI * 2;
+    // Move button to letter-window so it's positioned relative to it
+    if (noBtn.parentElement !== container) {
+        container.appendChild(noBtn);
+        noBtn.style.position = "absolute";
+    }
 
-    const moveX = Math.cos(angle) * distance;
-    const moveY = Math.sin(angle) * distance;
+    // Calculate available space
+    const maxX = container.clientWidth - noBtn.offsetWidth;
+    const maxY = container.clientHeight - noBtn.offsetHeight;
 
-    noBtn.style.transition = "transform 0.3s ease";
-    noBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    // Generate random positions
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+
+    // Apply new position with animation
+    noBtn.style.transition = "all 0.3s ease";
+    noBtn.style.left = randomX + "px";
+    noBtn.style.top = randomY + "px";
+    
+    // Clear transform since we are using top/left now
+    noBtn.style.transform = "none";
 });
 
 // Logic to make YES btn to grow
@@ -67,6 +80,7 @@ yesBtn.addEventListener("click", () => {
     document.querySelector(".letter-window").classList.add("final");
 
     buttons.style.display = "none";
+    noBtn.style.display = "none";
 
     finalText.style.display = "block";
 });

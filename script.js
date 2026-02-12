@@ -11,7 +11,10 @@ const finalText = document.getElementById("final-text");
 
 // Click Envelope
 
+const bgMusic = document.getElementById("bg-music");
+
 envelope.addEventListener("click", () => {
+    bgMusic.play();
     envelope.style.display = "none";
     letter.style.display = "flex";
 

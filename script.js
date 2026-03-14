@@ -10,32 +10,67 @@ const catImg = document.getElementById("letter-cat");
 const buttons = document.getElementById("letter-buttons");
 const finalText = document.getElementById("final-text");
 
-// Init configuration from localStorage
+const DB_URL = "https://kvdb.io/6M4Qu1GqwgV8Md14iJd9yj";
+
+// Init configuration
 const defaultConfig = {
     envelopeText: "♡ Letter for You ♡",
     letterTitle: "Will you be my Valentine?",
     finalText: "<strong>Valentine Date:</strong> Meow Restaurant at 7pm. Dress fancy!"
 };
 
-const valConfig = JSON.parse(localStorage.getItem('val_config')) || defaultConfig;
-
-// Apply config
-envelopeTextEl.innerHTML = valConfig.envelopeText;
-title.innerHTML = valConfig.letterTitle;
-finalText.innerHTML = valConfig.finalText;
-
-// Stats tracking
-let sessionNoClicks = 0;
-let valStats = JSON.parse(localStorage.getItem('val_stats')) || {
+let valStats = {
     totalNoClicks: 0,
     totalYesClicks: 0,
     status: "Pending", // Pending, Accepted, Rejected
     history: []
 };
 
+let sessionNoClicks = 0;
+
+async function initData() {
+    try {
+        const configRes = await fetch(`${DB_URL}/config`);
+        if (configRes.ok) {
+            const valConfig = await configRes.json();
+            envelopeTextEl.innerHTML = valConfig.envelopeText || defaultConfig.envelopeText;
+            title.innerHTML = valConfig.letterTitle || defaultConfig.letterTitle;
+            finalText.innerHTML = valConfig.finalText || defaultConfig.finalText;
+        } else {
+            throw new Error("No config");
+        }
+    } catch (e) {
+        envelopeTextEl.innerHTML = defaultConfig.envelopeText;
+        title.innerHTML = defaultConfig.letterTitle;
+        finalText.innerHTML = defaultConfig.finalText;
+    }
+
+    try {
+        const statsRes = await fetch(`${DB_URL}/stats`);
+        if (statsRes.ok) {
+            const fetchedStats = await statsRes.json();
+            if (fetchedStats && typeof fetchedStats === "object") {
+                valStats = fetchedStats;
+                if (!valStats.history) valStats.history = [];
+            }
+        }
+    } catch (e) {
+        // use default
+    }
+}
+
+initData();
+
 // Save stats helper
-function saveStats() {
-    localStorage.setItem('val_stats', JSON.stringify(valStats));
+async function saveStats() {
+    try {
+        await fetch(`${DB_URL}/stats`, {
+            method: 'POST',
+            body: JSON.stringify(valStats)
+        });
+    } catch (e) {
+        console.error("Failed to save", e);
+    }
 }
 
 // Click Envelope
@@ -87,9 +122,10 @@ noBtn.addEventListener("click", () => {
     
     if (sessionNoClicks >= 3) {
         valStats.status = "Rejected";
-        saveStats();
-        // Redirect to admin
-        window.location.href = "admin/index.html";
+        saveStats().then(() => {
+            // Redirect to admin
+            window.location.href = "admin/index.html";
+        });
         return;
     }
     

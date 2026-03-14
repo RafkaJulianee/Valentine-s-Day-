@@ -1,3 +1,5 @@
+const DB_URL = "https://kvdb.io/6M4Qu1GqwgV8Md14iJd9yj";
+
 // Default Configuration
 const defaultConfig = {
     envelopeText: "♡ Letter for You ♡",
@@ -17,48 +19,83 @@ const letterTitleInput = document.getElementById('letterTitle');
 const finalTextInput = document.getElementById('finalText');
 
 // Load and Display Stats
-function loadStats() {
-    const valStats = JSON.parse(localStorage.getItem('val_stats')) || {
-        totalNoClicks: 0,
-        totalYesClicks: 0,
-        status: "Pending",
-        history: []
-    };
+async function loadStats() {
+    try {
+        const res = await fetch(`${DB_URL}/stats`);
+        let valStats = null;
+        if (res.ok) {
+            valStats = await res.json();
+        }
+        
+        if (!valStats || typeof valStats !== "object") {
+            valStats = {
+                totalNoClicks: 0,
+                totalYesClicks: 0,
+                status: "Pending",
+                history: []
+            };
+        }
 
-    statStatus.textContent = valStats.status;
-    statNo.textContent = valStats.totalNoClicks;
-    statYes.textContent = valStats.totalYesClicks;
+        statStatus.textContent = valStats.status;
+        statNo.textContent = valStats.totalNoClicks;
+        statYes.textContent = valStats.totalYesClicks;
 
-    // Add color logic for status
-    if (valStats.status === "Accepted") {
-        statStatus.className = "status-accepted";
-    } else if (valStats.status === "Rejected") {
-        statStatus.className = "status-rejected";
-    } else {
-        statStatus.className = "";
+        // Add color logic for status
+        if (valStats.status === "Accepted") {
+            statStatus.className = "status-accepted";
+        } else if (valStats.status === "Rejected") {
+            statStatus.className = "status-rejected";
+        } else {
+            statStatus.className = "";
+        }
+    } catch (e) {
+        console.error("Failed to load stats", e);
     }
 }
 
 // Load configurations into form
-function loadConfig() {
-    const valConfig = JSON.parse(localStorage.getItem('val_config')) || defaultConfig;
-    
-    envelopeTextInput.value = valConfig.envelopeText;
-    letterTitleInput.value = valConfig.letterTitle;
-    finalTextInput.value = valConfig.finalText;
+async function loadConfig() {
+    try {
+        const res = await fetch(`${DB_URL}/config`);
+        let valConfig = defaultConfig;
+        if (res.ok) {
+            valConfig = await res.json();
+        }
+        
+        envelopeTextInput.value = valConfig.envelopeText || defaultConfig.envelopeText;
+        letterTitleInput.value = valConfig.letterTitle || defaultConfig.letterTitle;
+        finalTextInput.value = valConfig.finalText || defaultConfig.finalText;
+    } catch (e) {
+        envelopeTextInput.value = defaultConfig.envelopeText;
+        letterTitleInput.value = defaultConfig.letterTitle;
+        finalTextInput.value = defaultConfig.finalText;
+    }
 }
 
 // Reset stats
-resetBtn.addEventListener('click', () => {
+resetBtn.addEventListener('click', async () => {
     if(confirm("Are you sure you want to reset target statistics?")) {
-        localStorage.removeItem('val_stats');
-        loadStats();
-        alert("Statistics reset successfully!");
+        try {
+            const defaultStats = {
+                totalNoClicks: 0,
+                totalYesClicks: 0,
+                status: "Pending",
+                history: []
+            };
+            await fetch(`${DB_URL}/stats`, {
+                method: 'POST',
+                body: JSON.stringify(defaultStats)
+            });
+            loadStats();
+            alert("Statistics reset successfully!");
+        } catch(e) {
+            alert("Error resetting stats");
+        }
     }
 });
 
 // Save configurations
-configForm.addEventListener('submit', (e) => {
+configForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const newConfig = {
@@ -67,8 +104,18 @@ configForm.addEventListener('submit', (e) => {
         finalText: finalTextInput.value
     };
     
-    localStorage.setItem('val_config', JSON.stringify(newConfig));
-    alert("Configurations saved! The user will see these new texts.");
+    try {
+        const pBtn = document.querySelector('.success-btn');
+        pBtn.textContent = "Saving...";
+        await fetch(`${DB_URL}/config`, {
+            method: 'POST',
+            body: JSON.stringify(newConfig)
+        });
+        pBtn.textContent = "Save Configurations";
+        alert("Configurations saved! The user will see these new texts.");
+    } catch (e) {
+        alert("Error saving configurations");
+    }
 });
 
 // Initialize on load

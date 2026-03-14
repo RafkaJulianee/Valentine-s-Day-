@@ -8,6 +8,12 @@ const defaultConfig = {
 };
 
 // Elements
+const loginContainer = document.getElementById('login-container');
+const adminContainer = document.getElementById('admin-container');
+const loginBtn = document.getElementById('login-btn');
+const adminPassInput = document.getElementById('admin-pass');
+const loginError = document.getElementById('login-error');
+
 const statStatus = document.getElementById('stat-status');
 const statNo = document.getElementById('stat-no');
 const statYes = document.getElementById('stat-yes');
@@ -120,9 +126,31 @@ configForm.addEventListener('submit', async (e) => {
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
-    loadStats();
-    loadConfig();
-    
-    // Auto-refresh stats every 2 seconds to see live updates
-    setInterval(loadStats, 2000);
+    // Check if already logged in this session
+    if (sessionStorage.getItem('admin_logged_in')) {
+        loginContainer.style.display = 'none';
+        adminContainer.style.display = 'block';
+        loadStats();
+        loadConfig();
+        setInterval(loadStats, 2000);
+    }
+});
+
+// Login Logic
+loginBtn.addEventListener('click', () => {
+    if (adminPassInput.value === 'admin123') {
+        sessionStorage.setItem('admin_logged_in', 'true');
+        loginContainer.style.display = 'none';
+        adminContainer.style.display = 'block';
+        loginError.style.display = 'none';
+        loadStats();
+        loadConfig();
+        setInterval(loadStats, 2000);
+    } else {
+        loginError.style.display = 'block';
+    }
+});
+
+adminPassInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') loginBtn.click();
 });

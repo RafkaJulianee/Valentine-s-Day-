@@ -122,10 +122,19 @@ noBtn.addEventListener("click", () => {
     
     if (sessionNoClicks >= 3) {
         valStats.status = "Rejected";
-        saveStats().then(() => {
-            // Redirect to admin
-            window.location.href = "admin/index.html";
-        });
+        saveStats();
+        
+        title.textContent = "Okay... 😢";
+        catImg.src = "cat_heart.gif";
+
+        document.querySelector(".letter-window").classList.add("final");
+
+        buttons.style.display = "none";
+        noBtn.style.display = "none";
+
+        finalText.innerHTML = "<strong>Status:</strong> Rejected 💔";
+        finalText.style.display = "block";
+        
         return;
     }
     

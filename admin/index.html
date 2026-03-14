@@ -8,7 +8,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="admin-container">
+    <!-- Login Screen -->
+    <div class="login-container" id="login-container">
+        <div class="card">
+            <h2>Admin Area</h2>
+            <div class="form-group" style="margin-top: 15px;">
+                <input type="password" id="admin-pass" placeholder="Enter password..." required>
+            </div>
+            <button id="login-btn" class="btn success-btn">Login</button>
+            <p id="login-error" style="color: #f44336; font-size: 0.9rem; margin-top: 10px; display: none;">Incorrect password!</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="admin-container" id="admin-container" style="display: none;">
         <h1>Valentine Dashboard 💌</h1>
         
         <div class="card stats-card">

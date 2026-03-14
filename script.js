@@ -1,5 +1,6 @@
 // Elements
-const envelope = document.getElementById("envelope-container");
+const envelopeContainer = document.getElementById("envelope-container");
+const envelopeTextEl = document.getElementById("envelope-text");
 const letter = document.getElementById("letter-container");
 const noBtn = document.querySelector(".no-btn");
 const yesBtn = document.querySelector(".btn[alt='Yes']");
@@ -9,13 +10,41 @@ const catImg = document.getElementById("letter-cat");
 const buttons = document.getElementById("letter-buttons");
 const finalText = document.getElementById("final-text");
 
+// Init configuration from localStorage
+const defaultConfig = {
+    envelopeText: "♡ Letter for You ♡",
+    letterTitle: "Will you be my Valentine?",
+    finalText: "<strong>Valentine Date:</strong> Meow Restaurant at 7pm. Dress fancy!"
+};
+
+const valConfig = JSON.parse(localStorage.getItem('val_config')) || defaultConfig;
+
+// Apply config
+envelopeTextEl.innerHTML = valConfig.envelopeText;
+title.innerHTML = valConfig.letterTitle;
+finalText.innerHTML = valConfig.finalText;
+
+// Stats tracking
+let sessionNoClicks = 0;
+let valStats = JSON.parse(localStorage.getItem('val_stats')) || {
+    totalNoClicks: 0,
+    totalYesClicks: 0,
+    status: "Pending", // Pending, Accepted, Rejected
+    history: []
+};
+
+// Save stats helper
+function saveStats() {
+    localStorage.setItem('val_stats', JSON.stringify(valStats));
+}
+
 // Click Envelope
 
 const bgMusic = document.getElementById("bg-music");
 
-envelope.addEventListener("click", () => {
+envelopeContainer.addEventListener("click", () => {
     bgMusic.play();
-    envelope.style.display = "none";
+    envelopeContainer.style.display = "none";
     letter.style.display = "flex";
 
     setTimeout( () => {
@@ -50,6 +79,21 @@ noBtn.addEventListener("click", () => {
     
     // Clear transform since we are using top/left now
     noBtn.style.transform = "none";
+
+    // Track logic
+    sessionNoClicks++;
+    valStats.totalNoClicks++;
+    valStats.history.push({ action: "Clicked No", time: new Date().toISOString() });
+    
+    if (sessionNoClicks >= 3) {
+        valStats.status = "Rejected";
+        saveStats();
+        // Redirect to admin
+        window.location.href = "admin/index.html";
+        return;
+    }
+    
+    saveStats();
 });
 
 // Logic to make YES btn to grow
@@ -77,6 +121,11 @@ noBtn.addEventListener("click", () => {
 
 yesBtn.addEventListener("click", () => {
     title.textContent = "Yippeeee!";
+
+    valStats.totalYesClicks++;
+    valStats.status = "Accepted";
+    valStats.history.push({ action: "Clicked Yes", time: new Date().toISOString() });
+    saveStats();
 
     catImg.src = "cat_dance.gif";
 

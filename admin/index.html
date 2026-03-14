@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Valentine Letter</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Valentine Dashboard 💌</h1>
+        
+        <div class="card stats-card">
+            <h2>Live Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3 id="stat-status">Pending</h3>
+                    <p>Final Status</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="stat-no">0</h3>
+                    <p>"No" Clicks</p>
+                </div>
+                <div class="stat-box">
+                    <h3 id="stat-yes">0</h3>
+                    <p>"Yes" Clicks</p>
+                </div>
+            </div>
+            <button id="reset-stats" class="btn danger-btn">Reset Target Stats</button>
+        </div>
+
+        <div class="card config-card">
+            <h2>Text Customization</h2>
+            <form id="config-form">
+                <div class="form-group">
+                    <label for="envelopeText">Envelope Text:</label>
+                    <input type="text" id="envelopeText" required>
+                </div>
+                <div class="form-group">
+                    <label for="letterTitle">Letter Title (Question):</label>
+                    <input type="text" id="letterTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="finalText">Final Text (HTML allowed):</label>
+                    <textarea id="finalText" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn success-btn">Save Configurations</button>
+            </form>
+        </div>
+        
+        <div class="nav-links">
+            <a href="../index.html" class="link-btn">Go to Letter Page</a>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

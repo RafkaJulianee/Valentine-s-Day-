@@ -120,22 +120,9 @@ noBtn.addEventListener("click", () => {
     valStats.totalNoClicks++;
     valStats.history.push({ action: "Clicked No", time: new Date().toISOString() });
     
-    if (sessionNoClicks >= 3) {
+    // As requested, the very first click counts as a choice (if not already "Accepted")
+    if (valStats.status === "Pending") {
         valStats.status = "Rejected";
-        saveStats();
-        
-        title.textContent = "Okay... 😢";
-        catImg.src = "cat_heart.gif";
-
-        document.querySelector(".letter-window").classList.add("final");
-
-        buttons.style.display = "none";
-        noBtn.style.display = "none";
-
-        finalText.innerHTML = "<strong>Status:</strong> Rejected 💔";
-        finalText.style.display = "block";
-        
-        return;
     }
     
     saveStats();

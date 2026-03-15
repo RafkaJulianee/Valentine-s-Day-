@@ -159,7 +159,7 @@ yesBtn.addEventListener("click", () => {
     valStats.history.push({ action: "Clicked Yes", time: new Date().toISOString() });
     saveStats();
 
-    catImg.src = "cat_dance.gif";
+    catImg.src = "img/cat_dance.gif";
 
     document.querySelector(".letter-window").classList.add("final");
 

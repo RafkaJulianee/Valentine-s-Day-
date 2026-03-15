@@ -14,15 +14,22 @@ const loginBtn = document.getElementById('login-btn');
 const adminPassInput = document.getElementById('admin-pass');
 const loginError = document.getElementById('login-error');
 
-const statStatus = document.getElementById('stat-status');
-const statNo = document.getElementById('stat-no');
-const statYes = document.getElementById('stat-yes');
+const historyTbody = document.getElementById('history-tbody');
 const resetBtn = document.getElementById('reset-stats');
 
-const configForm = document.getElementById('config-form');
-const envelopeTextInput = document.getElementById('envelopeText');
-const letterTitleInput = document.getElementById('letterTitle');
-const finalTextInput = document.getElementById('finalText');
+// Format ISO string to readable time
+function formatTime(isoString) {
+    if (!isoString) return "-";
+    const date = new Date(isoString);
+    return date.toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+}
 
 // Load and Display Stats
 async function loadStats() {
@@ -42,45 +49,47 @@ async function loadStats() {
             };
         }
 
-        statStatus.textContent = valStats.status;
-        statNo.textContent = valStats.totalNoClicks;
-        statYes.textContent = valStats.totalYesClicks;
-
-        // Add color logic for status
-        if (valStats.status === "Accepted") {
-            statStatus.className = "status-accepted";
-        } else if (valStats.status === "Rejected") {
-            statStatus.className = "status-rejected";
+        // Render history table
+        historyTbody.innerHTML = '';
+        if (valStats.history && valStats.history.length > 0) {
+            // Reverse to show latest first
+            const reversedHistory = [...valStats.history].reverse();
+            reversedHistory.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                
+                // Index column
+                const tdIndex = document.createElement('td');
+                tdIndex.textContent = valStats.history.length - index;
+                
+                // Action column with badge
+                const tdAction = document.createElement('td');
+                const badge = document.createElement('span');
+                badge.textContent = item.action;
+                badge.className = item.action.includes('Yes') ? 'badge badge-yes' : 'badge badge-no';
+                tdAction.appendChild(badge);
+                
+                // Time column
+                const tdTime = document.createElement('td');
+                tdTime.textContent = formatTime(item.time);
+                
+                tr.appendChild(tdIndex);
+                tr.appendChild(tdAction);
+                tr.appendChild(tdTime);
+                historyTbody.appendChild(tr);
+            });
         } else {
-            statStatus.className = "";
+            historyTbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">No history yet.</td></tr>';
         }
+
     } catch (e) {
         console.error("Failed to load stats", e);
-    }
-}
-
-// Load configurations into form
-async function loadConfig() {
-    try {
-        const res = await fetch(`${DB_URL}/config`);
-        let valConfig = defaultConfig;
-        if (res.ok) {
-            valConfig = await res.json();
-        }
-        
-        envelopeTextInput.value = valConfig.envelopeText || defaultConfig.envelopeText;
-        letterTitleInput.value = valConfig.letterTitle || defaultConfig.letterTitle;
-        finalTextInput.value = valConfig.finalText || defaultConfig.finalText;
-    } catch (e) {
-        envelopeTextInput.value = defaultConfig.envelopeText;
-        letterTitleInput.value = defaultConfig.letterTitle;
-        finalTextInput.value = defaultConfig.finalText;
+        historyTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">Failed to load data.</td></tr>';
     }
 }
 
 // Reset stats
 resetBtn.addEventListener('click', async () => {
-    if(confirm("Are you sure you want to reset target statistics?")) {
+    if(confirm("Are you sure you want to clear the history?")) {
         try {
             const defaultStats = {
                 totalNoClicks: 0,
@@ -93,34 +102,10 @@ resetBtn.addEventListener('click', async () => {
                 body: JSON.stringify(defaultStats)
             });
             loadStats();
-            alert("Statistics reset successfully!");
+            alert("History cleared successfully!");
         } catch(e) {
-            alert("Error resetting stats");
+            alert("Error clearing history");
         }
-    }
-});
-
-// Save configurations
-configForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const newConfig = {
-        envelopeText: envelopeTextInput.value,
-        letterTitle: letterTitleInput.value,
-        finalText: finalTextInput.value
-    };
-    
-    try {
-        const pBtn = document.querySelector('.success-btn');
-        pBtn.textContent = "Saving...";
-        await fetch(`${DB_URL}/config`, {
-            method: 'POST',
-            body: JSON.stringify(newConfig)
-        });
-        pBtn.textContent = "Save Configurations";
-        alert("Configurations saved! The user will see these new texts.");
-    } catch (e) {
-        alert("Error saving configurations");
     }
 });
 
@@ -131,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginContainer.style.display = 'none';
         adminContainer.style.display = 'block';
         loadStats();
-        loadConfig();
         setInterval(loadStats, 2000);
     }
 });
@@ -144,7 +128,6 @@ loginBtn.addEventListener('click', () => {
         adminContainer.style.display = 'block';
         loginError.style.display = 'none';
         loadStats();
-        loadConfig();
         setInterval(loadStats, 2000);
     } else {
         loginError.style.display = 'block';

@@ -25,41 +25,24 @@
         <h1>Valentine Dashboard 💌</h1>
         
         <div class="card stats-card">
-            <h2>Live Statistics</h2>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <h3 id="stat-status">Pending</h3>
-                    <p>Final Status</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="stat-no">0</h3>
-                    <p>"No" Clicks</p>
-                </div>
-                <div class="stat-box">
-                    <h3 id="stat-yes">0</h3>
-                    <p>"Yes" Clicks</p>
-                </div>
+            <h2>Click History</h2>
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Action</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-tbody">
+                        <tr><td colspan="3" style="text-align: center;">Loading history...</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <button id="reset-stats" class="btn danger-btn">Reset Target Stats</button>
-        </div>
-
-        <div class="card config-card">
-            <h2>Text Customization</h2>
-            <form id="config-form">
-                <div class="form-group">
-                    <label for="envelopeText">Envelope Text:</label>
-                    <input type="text" id="envelopeText" required>
-                </div>
-                <div class="form-group">
-                    <label for="letterTitle">Letter Title (Question):</label>
-                    <input type="text" id="letterTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="finalText">Final Text (HTML allowed):</label>
-                    <textarea id="finalText" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn success-btn">Save Configurations</button>
-            </form>
+            <div style="text-align: right; margin-top: 15px;">
+                <button id="reset-stats" class="btn danger-btn" style="width: auto;">Clear History</button>
+            </div>
         </div>
         
         <div class="nav-links">
